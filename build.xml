@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+** This is the build file for the ProjectionSwitch plugin.
+**
+** Maintaining versions
+** ====================
+** See README.template
+**
+** Usage
+** =====
+** Call "ant help" to get possible build targets.
+**
+-->
+<project name="ProjectionSwitch" default="dist" basedir=".">
+
+    <property name="commit.message" value="Update ProjectionSwitch"/>
+    <property name="plugin.main.version" value="4394"/>
+    
+    <property name="plugin.author" value="Sven Karsten Greiner"/>
+    <property name="plugin.class" value="de.sammyshp.josm.projectionswitch.ProjectionSwitchPlugin"/>
+    <property name="plugin.description" value="Switch between projections with one click."/>
+    <property name="plugin.icon" value="images/map.png"/>
+
+    <!-- ** include targets that all plugins have in common ** -->
+    <import file="../build-common.xml"/>
+  
+</project>
