@@ -1,27 +1,158 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-** This is the build file for the ProjectionSwitch plugin.
-**
-** Maintaining versions
-** ====================
-** See README.template
-**
-** Usage
-** =====
-** Call "ant help" to get possible build targets.
-**
--->
-<project name="ProjectionSwitch" default="dist" basedir=".">
+<project name="ProjectionSwitch" default="help" basedir=".">
 
-    <property name="commit.message" value="Update ProjectionSwitch"/>
-    <property name="plugin.main.version" value="4394"/>
+    <property name="plugin.main.version"    value="5000"/>
+    <property name="plugin.version"         value="1"/>
+    <property name="plugin.date"            value=""/>
+    <property name="plugin.author"          value="Sven Karsten Greiner"/>
+    <property name="plugin.class"           value="de.sammyshp.josm.projectionswitch.ProjectionSwitchPlugin"/>
+    <property name="plugin.description"     value="Switch between projections with one click."/>
+    <property name="plugin.icon"            value="images/map.png"/>
+
+    <property name="josm.tested.url"        value="http://josm.openstreetmap.de/josm-tested.jar"/>
+    <property name="josm.latest.url"        value="http://josm.openstreetmap.de/josm-latest.jar"/>
+    <property name="josm.local"             value="josm.jar"/>
+    <property name="plugin.build.dir"       value="build"/>
+    <property name="plugin.dist.dir"        value="dist"/>
+    <property name="plugin.src.dir"         value="src"/>
+    <property name="plugin.lib.dir"         value="lib"/>
+    <property name="ant.build.javac.target" value="1.6"/>
+    <property name="ant.build.javac.source" value="1.6"/>
+    <property name="plugin.jar"             value="${plugin.dist.dir}/${ant.project.name}.jar"/>
+
+    <!--
+    **********************************************************
+    ** init - initializes the build
+    **********************************************************
+    -->
+    <target name="init">
+        <mkdir dir="${plugin.build.dir}"/>
+        <echo message="downloading dependencies ..."/>
+        <get src="${josm.latest.url}" dest="${josm.local}" verbose="true" skipexisting="true"/>        
+    </target>
     
-    <property name="plugin.author" value="Sven Karsten Greiner"/>
-    <property name="plugin.class" value="de.sammyshp.josm.projectionswitch.ProjectionSwitchPlugin"/>
-    <property name="plugin.description" value="Switch between projections with one click."/>
-    <property name="plugin.icon" value="images/map.png"/>
+    <!--
+    **********************************************************
+    ** compile - compiles the source tree
+    **********************************************************
+    -->
+    <target name="compile" depends="init">
+        <echo message="compiling sources for ${plugin.jar} ..."/>
+        <javac srcdir="src" debug="true" destdir="${plugin.build.dir}" includeantruntime="false">
+            <compilerarg value="-Xlint:deprecation"/>
+            <compilerarg value="-Xlint:unchecked"/>
+            <compilerarg value="-Xlint:-options"/>
+            <classpath>
+                <pathelement location="${josm.local}"/>
+                <fileset dir="${plugin.lib.dir}" erroronmissingdir="no">
+                    <include name="**/*.jar"/>
+                </fileset>
+            </classpath>
+        </javac>
+    </target>
+    
+    <!--
+    **********************************************************
+    ** dist - creates the plugin jar
+    **********************************************************
+    -->
+    <target name="dist" depends="compile">
+        <echo message="creating ${ant.project.name}.jar ..."/>
+        <tstamp>
+            <format property="TODAY_LONG" pattern="yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"/>
+        </tstamp>        
+        <jar destfile="${plugin.jar}" basedir="${plugin.build.dir}">
+            <manifest>
+                <attribute name="Plugin-Mainversion" value="${plugin.main.version}"/>
+                <attribute name="Plugin-Version" value="${plugin.version}"/>
+                <attribute name="Plugin-Class" value="${plugin.class}" />
+                <attribute name="Plugin-Description" value="${plugin.description}" />
+                <attribute name="Plugin-Date" value="${TODAY_LONG}" />
+                <attribute name="Author" value="${plugin.author}"/>
+                <attribute name="Plugin-Icon" value="${plugin.icon}"/>
+            </manifest>
+            <fileset dir=".">
+                <include name="images/**"/>
+                <include name="README.md"/>
+                <include name="COPYING"/>
+            </fileset>
+            <zipgroupfileset dir="${plugin.lib.dir}" includes="*.jar" erroronmissingdir="no"/>
+        </jar>
+    </target>
 
-    <!-- ** include targets that all plugins have in common ** -->
-    <import file="../build-common.xml"/>
-  
+    <!--
+    **********************************************************
+    ** clean - clean up the build environment
+    **********************************************************
+    -->
+    <target name="clean">
+        <delete dir="${plugin.build.dir}"/>
+        <delete dir="${plugin.dist.dir}"/>
+    </target>
+    
+    <!--
+    **********************************************************
+    ** clean - clean up the build environment (incl. dependencies)
+    **********************************************************
+    -->
+    <target name="cleanall" depends="clean">
+        <delete file="${josm.local}"/>
+    </target>
+    
+    <!--
+    **********************************************************
+    ** install - install the plugin in local JOSM installation
+    **********************************************************
+    -->
+    <target name="install" depends="dist">
+        <property environment="env"/>
+        <condition property="josm.plugins.dir" value="${env.APPDATA}/JOSM/plugins" else="${user.home}/.josm/plugins">
+            <and>
+                <os family="windows"/>
+            </and>
+        </condition>
+        <copy file="${plugin.jar}" todir="${josm.plugins.dir}"/>
+    </target>
+
+    <!--
+    **********************************************************
+    ** runjosm - install plugin and start josm
+    **********************************************************
+    -->
+    <target name="runjosm" depends="install">
+        <java jar="${josm.local}" fork="true">
+        </java>
+    </target>
+
+    <!--
+    **********************************************************
+    ** profilejosm - install plugin and start josm in profiling mode
+    **********************************************************
+    -->
+    <target name="profilejosm" depends="install">
+        <nbprofiledirect>
+        </nbprofiledirect>
+        <java jar="${josm.local}" fork="true">
+            <jvmarg value="${profiler.info.jvmargs.agent}"/>
+        </java>
+    </target>
+    
+    <!--
+    **********************************************************
+    ** help - shows available targets
+    **********************************************************
+    -->
+    <target name="help">
+        <echo>
+    You can use following targets:
+    * dist        Builds the plugin jar file
+    * clean       Cleanup automatically created files
+    * cleanall    Cleanup automatically created files (incl. dependencies)
+    * install     Install the plugin in current system
+    * runjosm     Install plugin and start josm
+    * profilejosm Install plugin and start josm in profiling mode
+        </echo>
+    </target>
+
 </project>
+
