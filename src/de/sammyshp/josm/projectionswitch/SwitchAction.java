@@ -31,6 +31,7 @@ public class SwitchAction extends AbstractAction {
         try {
             menuItem.setState(projectionChoice.getProjection().toCode().equals(projection.toCode()));
         } catch (Exception e) {
+            // Nothing to do
         }
     }
 }
