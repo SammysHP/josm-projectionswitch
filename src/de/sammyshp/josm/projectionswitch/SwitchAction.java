@@ -15,12 +15,15 @@ public class SwitchAction extends AbstractAction {
     public SwitchAction(final ProjectionChoice projectionChoice) {
         super(projectionChoice.toString());
 
+        putValue("toolbar", false);
+
         this.projectionChoice = projectionChoice;
         this.menuItem = new JCheckBoxMenuItem(this);
     }
 
     @Override
     public void actionPerformed(ActionEvent ae) {
+        Main.pref.put("projection", projectionChoice.getId());
         Main.setProjection(projectionChoice.getProjection());
     }
 
