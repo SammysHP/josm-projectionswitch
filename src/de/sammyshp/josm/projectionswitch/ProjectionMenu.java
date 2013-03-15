@@ -3,9 +3,9 @@ package de.sammyshp.josm.projectionswitch;
 
 import static org.openstreetmap.josm.tools.I18n.tr;
 
+import java.awt.event.ActionEvent;
 import java.util.List;
 import java.util.LinkedList;
-import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.JMenu;
 import org.openstreetmap.josm.Main;
