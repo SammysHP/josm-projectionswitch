@@ -4,10 +4,18 @@ ProjectionSwitch
 This is a JOSM plugin to switch between projections with one click.
 
 
-Build
------
+Build & Installation
+--------------------
 
-Run ```ant help``` to see all available targets.
+Prerequisites: Installation of JDK, Ant and working Internet connection.
+
+1. Clone repository.
+2. **Optional:** Link/copy josm.jar to `./josm.jar`. If it is not present, it will be downloaded automatically.
+3. Run
+    - `ant dist` to build the jar file. You can find the file in `./dist`.
+    - `ant install` to build and install it in the current system.
+
+See `ant help` for all available targets.
 
 
 Author
